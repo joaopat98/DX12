@@ -1,0 +1,174 @@
+//------------------------------------------------------------------------------
+// Includes
+//------------------------------------------------------------------------------
+// Platforms
+#include "Build/VisualStudio.bff"
+#include "Build/Windows10SDK.bff"
+
+
+.D3dCompilerFilename = "d3dcompiler_47.dll"
+
+.D3dCompilerDir = "$Windows10_SDKBasePath$/Redist/D3D/x64"
+
+
+//------------------------------------------------------------------------------
+// Settings
+//------------------------------------------------------------------------------
+Settings
+{
+    #if __WINDOWS__
+        #import TMP
+        .Environment    = { "PATH=$VS_PATH$;$WINDOWS_SDK_2019_PATH$",
+                            "TMP=$TMP$",
+                            "SystemRoot=C:\Windows" }
+    #endif
+}
+
+//------------------------------------------------------------------------------
+// Config Defines
+//------------------------------------------------------------------------------
+
+.Debug_Config =
+[
+    .CompilerOptions                = ' -DDEBUG -DPROFILING_ENABLED'
+    .CompilerOptionsC               = .CompilerOptions
+
+    .BuildConfigName                = 'Debug'
+    .ExecutableSuffix               = ''
+    .UnityInputIsolateWritableFiles = true
+    .LibSuffix                      = 'd'
+]
+.Analyze_Config =
+[
+    .CompilerOptions                = ' -DDEBUG -DPROFILING_ENABLED -DANALYZE'
+    .CompilerOptionsC               = .CompilerOptions
+    .BuildConfigName                = 'Analyze'
+    .ExecutableSuffix               = '_Analyze'
+    .LibSuffix                      = 'd'
+]
+.Profile_Config =
+[
+    .CompilerOptions                = ' -DRELEASE -DPROFILING_ENABLED'
+    .CompilerOptionsC               = .CompilerOptions
+
+    .BuildConfigName                = 'Profile'
+    .ExecutableSuffix               = '_Profile'
+    .LibSuffix                      = ''
+]
+.Release_Config =
+[
+    .CompilerOptions                = ' -DRELEASE'
+    .CompilerOptionsC               = .CompilerOptions
+    .CompilerOptionsDeoptimized     = .CompilerOptions
+
+    .BuildConfigName                = 'Release'
+    .ExecutableSuffix               = '_Release'
+    .LibSuffix                      = ''
+]
+
+//------------------------------------------------------------------------------
+// Optimizations (MSVC)
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .Debug_Optimizations_MSVC =
+    [
+        .CompilerOptions                = ' /MTd /Od /GS /Oy- /GR-'
+        .CompilerOptionsC               = .CompilerOptions
+    ]
+    .Analyze_Optimizations_MSVC =
+    [
+        Using( .Debug_Optimizations_MSVC )
+        .CompilerOptions                + .StaticAnalysisOptions
+        .CompilerOptionsC               = .CompilerOptions
+    ]
+    .Profile_Optimizations_MSVC =
+    [
+        .CompilerOptions                = ' /MT /Ox /Oy /Oi /GS- /GF /Gy /Gw /GR- /Zo'
+        .CompilerOptionsC               = .CompilerOptions
+        .LinkerOptions                  = ' /OPT:REF,ICF'
+    ]
+    .Release_Optimizations_MSVC =
+    [
+        Using( .Profile_Optimizations_MSVC )
+        .CompilerOptionsDeoptimized     = .CompilerOptions
+                                        - ' /Ox'
+                                        + ' /Od'
+    ]
+#endif
+
+// X64
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .X64BaseConfig              = .ToolChain_VS_Windows_X64
+                                + .Windows10_SDK_X64
+    .X64DebugConfig             = .X64BaseConfig
+                                + .Debug_Config
+                                + .Debug_Optimizations_MSVC
+    .X64AnalyzeConfig           = .X64BaseConfig
+                                + .Analyze_Config
+                                + .Analyze_Optimizations_MSVC
+    .X64ReleaseConfig           = .X64BaseConfig
+                                + .Release_Config
+                                + .Release_Optimizations_MSVC
+    .X64ProfileConfig           = .X64BaseConfig
+                                + .Profile_Config
+                                + .Profile_Optimizations_MSVC
+#endif
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+.OutputBase = '../tmp'
+
+// Configurations
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .BuildConfigs =
+    {
+        .X64DebugConfig
+        , .X64AnalyzeConfig
+        , .X64ProfileConfig
+        , .X64ReleaseConfig
+    }
+#endif
+
+Copy('Copy_D3dCompiler_Dll')
+{
+    .Source = "$D3dCompilerDir$/$D3dCompilerFilename$"
+    .Dest = 'DX12/Out/'
+}
+
+ForEach( .BuildConfig in .BuildConfigs )
+{
+    Using(.BuildConfig)
+
+    .LinkLibraries  = ' ucrt$LibSuffix$.lib'
+                    + ' vcruntime$LibSuffix$.lib'
+                    + ' libcmt$LibSuffix$.lib'
+                    + ' libcpmt$LibSuffix$.lib'
+                    + ' d3dcompiler.lib'
+                    + ' kernel32.lib'
+                    + ' d3d12.lib'
+                    + ' user32.lib'
+                    + ' shell32.lib'
+                    + ' dxgi.lib'
+
+    ObjectList('DX12Lib_$BuildConfigName$')
+    {
+        .Compiler = 'Compiler-VS2022-x64'
+        .CompilerOptions    = .CompilerOptions
+                            + .UseExceptions
+        .CompilerInputPath = 'DX12'
+        .CompilerOutputPath= 'DX12/Out/DX12Lib_$BuildConfigName$/'
+    }
+    Executable('DX12_$BuildConfigName$')
+    {
+        .Libraries = { "DX12Lib_$BuildConfigName$" }
+        .Linker = .Linker
+        .LinkerOutput = 'DX12/Out/DX12$ExecutableSuffix$.exe'
+        .PreBuildDependencies = 'Copy_D3dCompiler_Dll'
+        .LinkerOptions  = .LinkerOptions
+                        + .LinkLibraries
+    }
+}
+

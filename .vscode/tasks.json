@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "FASTBuild",
+			"task": "DX12_Debug",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"label": "FASTBuild: DX12_Debug"
+		}
+	]
+}

@@ -1,0 +1,60 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DX12 Debug (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/DX12/Out/DX12.exe",
+            "symbolSearchPath": "${workspaceFolder}/DX12/Out",
+            "logging": {
+              "moduleLoad": false,
+              "trace": true
+            },
+            "preLaunchTask": "FASTBuild: DX12_Debug",
+            "cwd": "${workspaceRoot}/DX12"
+        },
+        {
+            "name": "DX12 Analyze (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/DX12/Out/DX12_Analyze.exe",
+            "symbolSearchPath": "${workspaceFolder}/DX12/Out",
+            "logging": {
+              "moduleLoad": false,
+              "trace": true
+            },
+            "preLaunchTask": "FASTBuild: DX12_Analyze",
+            "cwd": "${workspaceRoot}/DX12"
+        },
+        {
+            "name": "DX12 Profile (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/DX12/Out/DX12_Profile.exe",
+            "symbolSearchPath": "${workspaceFolder}/DX12/Out",
+            "logging": {
+              "moduleLoad": false,
+              "trace": true
+            },
+            "preLaunchTask": "FASTBuild: DX12_Profile",
+            "cwd": "${workspaceRoot}/DX12"
+        },
+        {
+            "name": "DX12 Release (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/DX12/Out/DX12_Release.exe",
+            "symbolSearchPath": "${workspaceFolder}/DX12/Out",
+            "logging": {
+              "moduleLoad": false,
+              "trace": true
+            },
+            "preLaunchTask": "FASTBuild: DX12_Release",
+            "cwd": "${workspaceRoot}/DX12"
+        }
+    ]
+}

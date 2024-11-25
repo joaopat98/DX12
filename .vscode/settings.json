@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "limits": "cpp",
+        "utility": "cpp",
+        "xutility": "cpp",
+        "*.rh": "cpp"
+    },
+    "C_Cpp.default.cppStandard": "c++23"
+}
