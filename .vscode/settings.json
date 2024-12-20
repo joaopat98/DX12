@@ -61,7 +61,15 @@
         "tuple": "cpp",
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
-        "xtr1common": "cpp"
+        "xtr1common": "cpp",
+        "queue": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "xhash": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++23"
 }

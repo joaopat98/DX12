@@ -23,7 +23,7 @@ namespace DXHelpers
         // so all possible errors generated while creating DX12 objects
         // are caught by the debug layer.
         ComPtr<ID3D12Debug> debugInterface;
-        ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)));
+        assert(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))));
         debugInterface->EnableDebugLayer();
 #endif
     }
@@ -37,15 +37,15 @@ namespace DXHelpers
         createFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-        ThrowIfFailed(CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
+        assert(SUCCEEDED(CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory))));
 
         ComPtr<IDXGIAdapter1> dxgiAdapter1;
         ComPtr<IDXGIAdapter4> dxgiAdapter4;
 
         if (useWarp)
         {
-            ThrowIfFailed(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&dxgiAdapter1)));
-            ThrowIfFailed(dxgiAdapter1.As(&dxgiAdapter4));
+            assert(SUCCEEDED(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&dxgiAdapter1))));
+            assert(SUCCEEDED(dxgiAdapter1.As(&dxgiAdapter4)));
         }
         else
         {
@@ -64,7 +64,7 @@ namespace DXHelpers
                     dxgiAdapterDesc1.DedicatedVideoMemory > maxDedicatedVideoMemory)
                 {
                     maxDedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
-                    ThrowIfFailed(dxgiAdapter1.As(&dxgiAdapter4));
+                    assert(SUCCEEDED(dxgiAdapter1.As(&dxgiAdapter4)));
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace DXHelpers
     ComPtr<ID3D12Device2> CreateDevice(ComPtr<IDXGIAdapter4> adapter)
     {
         ComPtr<ID3D12Device2> d3d12Device2;
-        ThrowIfFailed(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3d12Device2)));
+        assert(SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3d12Device2))));
 
         // Enable debug messages in debug mode.
 #ifdef _DEBUG
@@ -109,7 +109,7 @@ namespace DXHelpers
             NewFilter.DenyList.NumIDs = _countof(DenyIds);
             NewFilter.DenyList.pIDList = DenyIds;
 
-            ThrowIfFailed(pInfoQueue->PushStorageFilter(&NewFilter));
+            assert(SUCCEEDED(pInfoQueue->PushStorageFilter(&NewFilter)));
         }
 #endif
 
@@ -126,7 +126,7 @@ namespace DXHelpers
         desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
         desc.NodeMask = 0;
 
-        ThrowIfFailed(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12CommandQueue)));
+        assert(SUCCEEDED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12CommandQueue))));
 
         return d3d12CommandQueue;
     }
@@ -166,7 +166,7 @@ namespace DXHelpers
         createFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-        ThrowIfFailed(CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory4)));
+        assert(SUCCEEDED(CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&dxgiFactory4))));
 
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {
             .Width = width,
@@ -183,19 +183,19 @@ namespace DXHelpers
             .Flags = CheckTearingSupport() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u};
 
         ComPtr<IDXGISwapChain1> swapChain1;
-        ThrowIfFailed(dxgiFactory4->CreateSwapChainForHwnd(
+        assert(SUCCEEDED(dxgiFactory4->CreateSwapChainForHwnd(
             commandQueue.Get(),
             hWnd,
             &swapChainDesc,
             nullptr,
             nullptr,
-            &swapChain1));
+            &swapChain1)));
 
         // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
         // will be handled manually.
-        ThrowIfFailed(dxgiFactory4->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER));
+        assert(SUCCEEDED(dxgiFactory4->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER)));
 
-        ThrowIfFailed(swapChain1.As(&dxgiSwapChain4));
+        assert(SUCCEEDED(swapChain1.As(&dxgiSwapChain4)));
 
         return dxgiSwapChain4;
     }
@@ -208,7 +208,7 @@ namespace DXHelpers
             .Type = type,
             .NumDescriptors = numDescriptors};
 
-        ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap)));
+        assert(SUCCEEDED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap))));
 
         return descriptorHeap;
     }
@@ -222,7 +222,7 @@ namespace DXHelpers
         for (uint8_t i = 0; i < backBuffers.size(); ++i)
         {
             ComPtr<ID3D12Resource> backBuffer;
-            ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+            assert(SUCCEEDED(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer))));
 
             device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
 
@@ -235,7 +235,7 @@ namespace DXHelpers
     ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type)
     {
         ComPtr<ID3D12CommandAllocator> commandAllocator;
-        ThrowIfFailed(device->CreateCommandAllocator(type, IID_PPV_ARGS(&commandAllocator)));
+        assert(SUCCEEDED(device->CreateCommandAllocator(type, IID_PPV_ARGS(&commandAllocator))));
 
         return commandAllocator;
     }
@@ -243,9 +243,9 @@ namespace DXHelpers
     ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ComPtr<ID3D12Device2> device, ComPtr<ID3D12CommandAllocator> commandAllocator, D3D12_COMMAND_LIST_TYPE type)
     {
         ComPtr<ID3D12GraphicsCommandList> commandList;
-        ThrowIfFailed(device->CreateCommandList(0, type, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
+        assert(SUCCEEDED(device->CreateCommandList(0, type, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))));
 
-        ThrowIfFailed(commandList->Close());
+        assert(SUCCEEDED(commandList->Close()));
 
         return commandList;
     }
@@ -254,7 +254,7 @@ namespace DXHelpers
     {
         ComPtr<ID3D12Fence> fence;
 
-        ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+        assert(SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))));
 
         return fence;
     }
@@ -262,7 +262,7 @@ namespace DXHelpers
     uint64_t SignalCommandQueue(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence, uint64_t &fenceValue)
     {
         uint64_t fenceValueForSignal = ++fenceValue;
-        ThrowIfFailed(commandQueue->Signal(fence.Get(), fenceValueForSignal));
+        assert(SUCCEEDED(commandQueue->Signal(fence.Get(), fenceValueForSignal)));
 
         return fenceValueForSignal;
     }
@@ -271,7 +271,7 @@ namespace DXHelpers
     {
         if (fence->GetCompletedValue() < fenceValue)
         {
-            ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+            assert(SUCCEEDED(fence->SetEventOnCompletion(fenceValue, fenceEvent)));
             ::WaitForSingleObject(fenceEvent, static_cast<DWORD>(durationMs));
         }
     }

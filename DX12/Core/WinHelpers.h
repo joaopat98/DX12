@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MinWindows.h" // For HRESULT
-#include <exception>
+#include <cassert>
 // In order to define a function called CreateWindow, the Windows macro needs to
 // be undefined.
 #if defined(CreateWindow)
@@ -12,10 +12,7 @@
 // Source: https://github.com/Microsoft/DirectX-Graphics-Samples
 inline void ThrowIfFailed(HRESULT hr)
 {
-    if (FAILED(hr))
-    {
-        throw std::exception();
-    }
+    assert(SUCCEEDED(hr));
 }
 
 namespace WinHelpers

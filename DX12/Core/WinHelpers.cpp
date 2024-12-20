@@ -3,8 +3,6 @@
 #include <cassert>
 #include <utility>
 
-
-
 namespace WinHelpers
 {
     HANDLE CreateEventHandle()
@@ -34,7 +32,7 @@ namespace WinHelpers
             .lpszClassName = windowClassName,
             .hIconSm = ::LoadIcon(hInst, NULL)};
 
-        static ATOM atom = ::RegisterClassExW(&windowClass);
+        ATOM atom = ::RegisterClassExW(&windowClass);
         assert(atom > 0);
     }
 
