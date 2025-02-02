@@ -3,7 +3,7 @@
 #include <cassert>
 
 CommandQueue::CommandQueue(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type)
-    : m_FenceValue(0), m_CommandListType(type), m_d3d12Device(device)
+    : m_CommandListType(type), m_d3d12Device(device), m_fenceValue(0)
 {
     D3D12_COMMAND_QUEUE_DESC desc = {};
     desc.Type = type;
@@ -12,7 +12,7 @@ CommandQueue::CommandQueue(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_C
     desc.NodeMask = 0;
 
     assert(SUCCEEDED(m_d3d12Device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_d3d12CommandQueue))));
-    assert(SUCCEEDED(m_d3d12Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_d3d12Fence))));
+    assert(SUCCEEDED(m_d3d12Device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_d3d12Fence))));
 
     m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
     assert(m_FenceEvent && "Failed to create fence event handle.");
@@ -96,4 +96,31 @@ uint64_t CommandQueue::ExecuteCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsC
     commandAllocator->Release();
 
     return fenceValue;
+}
+
+uint64_t CommandQueue::Signal()
+{
+    uint64_t fenceValueForSignal = ++m_fenceValue;
+    assert(SUCCEEDED(m_d3d12CommandQueue->Signal(m_d3d12Fence.Get(), fenceValueForSignal)));
+
+    return fenceValueForSignal;
+}
+
+bool CommandQueue::IsFenceComplete(uint64_t fenceValue)
+{
+    return m_d3d12Fence->GetCompletedValue() >= fenceValue;
+}
+
+void CommandQueue::WaitForFenceValue(uint64_t fenceValue)
+{
+    if (!IsFenceComplete(fenceValue))
+    {
+        m_d3d12Fence->SetEventOnCompletion(fenceValue, m_FenceEvent);
+        ::WaitForSingleObject(m_FenceEvent, DWORD_MAX);
+    }
+}
+
+void CommandQueue::Flush()
+{
+    WaitForFenceValue(Signal());
 }

@@ -28,10 +28,10 @@
         //
         // Use Visual Studio installation
         //
-        #if file_exists( "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64/cl.exe" )
+        #if file_exists( "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/cl.exe" )
             // v17.8.3
             .VS2022_BasePath        = 'C:/Program Files/Microsoft Visual Studio/2022/Community/VC'
-            .VS2022_Version         = '14.37.32822'
+            .VS2022_Version         = '14.41.34120'
             .VS2022_MSC_VER         = '1937'
         #else
             //
@@ -117,6 +117,9 @@ Compiler( 'Compiler-VS2022-x64' )
                                     + ' /wd5267' // definition of implicit copy constructor for '%s' is deprecated because it has a user-provided destructor
 
                                     // These warnings are not useful
+                                    + ' /wd4365'
+                                    + ' /wd4100'
+                                    + ' /wd4189'
                                     + ' /wd4061' // enumerator '%s' in switch of enum '%s' is not explicitly handled by a case label
                                     + ' /wd4514' // '%s': unreferenced inline function has been removed
                                     + ' /wd4577' // 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc

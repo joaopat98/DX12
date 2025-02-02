@@ -2,6 +2,7 @@
 
 #include "MinWindows.h" // For HRESULT
 #include <cassert>
+#include <cstdint>
 // In order to define a function called CreateWindow, the Windows macro needs to
 // be undefined.
 #if defined(CreateWindow)

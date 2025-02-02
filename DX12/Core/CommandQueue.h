@@ -24,7 +24,7 @@ public:
     void WaitForFenceValue(uint64_t fenceValue);
     void Flush();
 
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetD3D12CommandQueue() const;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetD3D12CommandQueue() const { return m_d3d12CommandQueue; }
 
 protected:
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CreateCommandAllocator();
@@ -46,7 +46,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_d3d12CommandQueue;
     Microsoft::WRL::ComPtr<ID3D12Fence> m_d3d12Fence;
     HANDLE m_FenceEvent;
-    uint64_t m_FenceValue;
+    uint64_t m_fenceValue;
 
     CommandAllocatorQueue m_CommandAllocatorQueue;
     CommandListQueue m_CommandListQueue;

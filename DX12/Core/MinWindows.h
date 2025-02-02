@@ -25,7 +25,9 @@
 #endif
 #define NOMENUS				// MF_*
 #define NOICONS				// IDI_*
+#ifndef CORE_DEFINES
 #define NOKEYSTATES			// MK_*
+#endif
 #define NOSYSCOMMANDS			// SC_*
 #define NORASTEROPS			// Binary and Tertiary raster ops
 #ifndef CORE_DEFINES
