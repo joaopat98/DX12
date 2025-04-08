@@ -16,6 +16,7 @@ class Window
 {
 public:
     using PaintEventHandler = std::function<void()>;
+    using DestroyEventHandler = std::function<void(const HWND handle)>;
     using KeyEventHandler = std::function<void(const KeyEventArgs &event)>;
     using MouseMotionEventHandler = std::function<void(const MouseMotionEventArgs &event)>;
     using MouseButtonEventHandler = std::function<void(const MouseButtonEventArgs &event)>;
@@ -42,6 +43,7 @@ public:
     static std::shared_ptr<Window> Create(const wchar_t *windowTitle, uint32_t width, uint32_t height);
 
     EventHandlerId RegisterPaintEventHandler(PaintEventHandler &&handler);
+    EventHandlerId RegisterDestroyEventHandler(DestroyEventHandler &&handler);
     EventHandlerId RegisterKeyEventHandler(KeyEventHandler &&handler);
     EventHandlerId RegisterMouseMotionEventHandler(MouseMotionEventHandler &&handler);
     EventHandlerId RegisterMouseButtonEventHandler(MouseButtonEventHandler &&handler);
@@ -61,13 +63,16 @@ public:
     bool GetVSync() { return m_vSync; }
     void SetVSync(bool vsync) { m_vSync = vsync; }
 
+    bool IsFullScreen() const;
+    void SetFullscreen(bool fullscreen);
+    void ToggleFullscreen();
+
     UINT Present();
 
-    void Close();
-
+    void Minimize();
+    void Destroy();
 
 private:
-
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
     LRESULT ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
@@ -85,6 +90,7 @@ private:
 
     // Input Event Handlers
     void ProcessPaintEvent();
+    void ProcessDestroyEvent();
     void ProcessKeyEvent(const KeyEventArgs &event);
     void ProcessMouseMotionEvent(const MouseMotionEventArgs &event);
     void ProcessMouseButtonEvent(const MouseButtonEventArgs &event);
@@ -98,6 +104,8 @@ private:
     uint32_t m_width;
     uint32_t m_height;
 
+    RECT m_windowedRect;
+
     Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;
 
     uint32_t m_currentBackBufferIndex;
@@ -107,6 +115,7 @@ private:
     std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_backBuffers;
 
     std::vector<PaintEventHandler> m_PaintEventHandlers;
+    std::vector<DestroyEventHandler> m_destroyEventHandlers;
     std::vector<KeyEventHandler> m_keyEventHandlers;
     std::vector<MouseMotionEventHandler> m_mouseMotionEventHandlers;
     std::vector<MouseButtonEventHandler> m_mouseButtonEventHandlers;
@@ -114,6 +123,7 @@ private:
     std::vector<ResizeEventHandler> m_resizeEventHandlers;
 
     bool m_vSync = true;
+    bool m_fullscreen = false;
 
     static const wchar_t *s_windowClassName;
     static const uint32_t s_numBuffers;

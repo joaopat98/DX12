@@ -50,6 +50,11 @@ std::shared_ptr<Window> Engine::CreateWindow(const wchar_t *windowTitle, uint32_
     return window;
 }
 
+void Engine::RegisterStartupEventHandler(std::shared_ptr<IStartupEventHandler> startupEventHandler)
+{
+    m_startupEventHandlers.push_back(startupEventHandler);
+}
+
 void Engine::RegisterUpdateEventHandler(std::shared_ptr<IUpdateEventHandler> updateEventHandler)
 {
     m_updateEventHandlers.push_back(updateEventHandler);
@@ -74,6 +79,11 @@ void Engine::Run()
 
     m_clock.Reset();
     double curTime = m_clock.GetCurrentTime();
+
+    for (std::shared_ptr<IStartupEventHandler> &startupEventHandler : m_startupEventHandlers)
+    {
+        startupEventHandler->Startup();
+    }
 
     while (m_shouldRun)
     {
@@ -100,6 +110,13 @@ void Engine::Run()
             renderEventHandler->Render();
         }
     }
+
+    WaitForGPU();
+}
+
+void Engine::Exit()
+{
+    m_shouldRun = false;
 }
 
 Engine::Engine(HINSTANCE applicationInstance, std::wstring cmdLine) : m_applicationInstance(applicationInstance)

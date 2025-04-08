@@ -15,7 +15,7 @@
               "trace": true
             },
             "preLaunchTask": "FASTBuild: DX12_Debug",
-            "cwd": "${workspaceRoot}/DX12"
+            "cwd": "${workspaceRoot}/DX12/Out"
         },
         {
             "name": "DX12 Analyze (Windows)",
@@ -28,7 +28,7 @@
               "trace": true
             },
             "preLaunchTask": "FASTBuild: DX12_Analyze",
-            "cwd": "${workspaceRoot}/DX12"
+            "cwd": "${workspaceRoot}/DX12/Out"
         },
         {
             "name": "DX12 Profile (Windows)",
@@ -41,7 +41,7 @@
               "trace": true
             },
             "preLaunchTask": "FASTBuild: DX12_Profile",
-            "cwd": "${workspaceRoot}/DX12"
+            "cwd": "${workspaceRoot}/DX12/Out"
         },
         {
             "name": "DX12 Release (Windows)",
@@ -54,7 +54,7 @@
               "trace": true
             },
             "preLaunchTask": "FASTBuild: DX12_Release",
-            "cwd": "${workspaceRoot}/DX12"
+            "cwd": "${workspaceRoot}/DX12/Out"
         }
     ]
 }

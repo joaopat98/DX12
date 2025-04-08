@@ -1,6 +1,7 @@
 #include "DXHelpers.h"
 
 #include "WinHelpers.h"
+#include "Engine.h"
 #include <cassert>
 
 #pragma warning(push)
@@ -280,5 +281,53 @@ namespace DXHelpers
     {
         uint64_t fenceValueForSignal = SignalCommandQueue(commandQueue, fence, fenceValue);
         WaitForFenceValue(fence, fenceValueForSignal, fenceEvent);
+    }
+
+    void TransitionResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
+    {
+        CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), beforeState, afterState);
+        commandList->ResourceBarrier(1, &barrier);
+    }
+
+    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> &destinationResource, ComPtr<ID3D12Resource> &intermediateResource, size_t numElements, size_t elementSize, const void *bufferData, D3D12_RESOURCE_FLAGS flags)
+    {
+        auto device = Engine::Get().GetDevice();
+        LONG_PTR bufferSize = numElements * elementSize;
+
+        CD3DX12_HEAP_PROPERTIES resourceHeapProps(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_RESOURCE_DESC resourceBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, flags);
+
+        // Create a committed resource for the GPU resource in a default heap.
+        assert(SUCCEEDED(device->CreateCommittedResource(
+            &resourceHeapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &resourceBufferDesc,
+            D3D12_RESOURCE_STATE_COMMON,
+            nullptr,
+            IID_PPV_ARGS(&destinationResource))));
+
+        // Create an committed resource for the upload.
+        if (bufferData)
+        {
+            CD3DX12_HEAP_PROPERTIES uploadHeapProps(D3D12_HEAP_TYPE_UPLOAD);
+            CD3DX12_RESOURCE_DESC uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+            assert(SUCCEEDED(device->CreateCommittedResource(
+                &uploadHeapProps,
+                D3D12_HEAP_FLAG_NONE,
+                &uploadBufferDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&intermediateResource))));
+
+            D3D12_SUBRESOURCE_DATA subresourceData[1] = {
+                {.pData = bufferData,
+                 .RowPitch = bufferSize,
+                 .SlicePitch = bufferSize}};
+
+            UpdateSubresources(commandList.Get(),
+                               destinationResource.Get(), intermediateResource.Get(),
+                               0, 0, 1, subresourceData);
+        }
     }
 }

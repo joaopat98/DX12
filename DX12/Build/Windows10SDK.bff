@@ -103,6 +103,6 @@ Compiler( 'ResourceCompiler-Windows10' )
 
 // PATH environment variable
 //------------------------------------------------------------------------------
-.WINDOWS_SDK_2019_PATH          = '$Windows10_SDKBasePath$/bin/$Windows10_SDKVersion$/x64'
+.WINDOWS_SDK_PATH          = '$Windows10_SDKBasePath$/bin/$Windows10_SDKVersion$/x64'
 
 //------------------------------------------------------------------------------

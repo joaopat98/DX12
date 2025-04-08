@@ -5,6 +5,8 @@
 #include "Build/VisualStudio.bff"
 #include "Build/Windows10SDK.bff"
 
+#import PATH
+
 
 .D3dCompilerFilename = "d3dcompiler_47.dll"
 
@@ -18,7 +20,7 @@ Settings
 {
     #if __WINDOWS__
         #import TMP
-        .Environment    = { "PATH=$VS_PATH$;$WINDOWS_SDK_2019_PATH$",
+        .Environment    = { "PATH=$VS_PATH$;$WINDOWS_SDK_PATH$",
                             "TMP=$TMP$",
                             "SystemRoot=C:\Windows" }
     #endif
@@ -132,10 +134,15 @@ Settings
     }
 #endif
 
-Copy('Copy_D3dCompiler_Dll')
+Exec('ShaderCompile')
 {
-    .Source = "$D3dCompilerDir$/$D3dCompilerFilename$"
-    .Dest = 'DX12/Out/'
+    .ExecExecutable = 'DX12/Build/ShaderCompile.bat'
+    .ExecArguments  = '-i DX12\Shaders -o DX12\Out\Shaders --sdk "$WINDOWS_SDK_PATH$" --cache DX12/Out/shader_cache.json'
+    .ExecOutput     = 'DX12/Out/shader_compile.txt'
+    .ExecUseStdOutAsOutput = true;  // Use standard output as the output
+    .ExecAlways = true
+    .ExecAlwaysShowOutput = true
+    .Environment = {'PATH=$PATH$'}
 }
 
 ForEach( .BuildConfig in .BuildConfigs )
@@ -152,6 +159,7 @@ ForEach( .BuildConfig in .BuildConfigs )
                     + ' user32.lib'
                     + ' shell32.lib'
                     + ' dxgi.lib'
+                    + ' dxguid.lib'
 
     ObjectList('DX12Lib_$BuildConfigName$')
     {
@@ -166,7 +174,8 @@ ForEach( .BuildConfig in .BuildConfigs )
         .Libraries = { "DX12Lib_$BuildConfigName$" }
         .Linker = .Linker
         .LinkerOutput = 'DX12/Out/DX12$ExecutableSuffix$.exe'
-        .PreBuildDependencies = 'Copy_D3dCompiler_Dll'
+        .PreBuildDependencies =  {'ShaderCompile'}
+
         .LinkerOptions  = .LinkerOptions
                         + .LinkLibraries
     }

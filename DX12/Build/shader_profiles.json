@@ -1,0 +1,30 @@
+[
+    {
+        "profile_name": "cs_5_1",
+        "source_pattern": "*_cs.hlsl"
+    },
+    {
+        "profile_name": "ds_5_1",
+        "source_pattern": "*_ds.hlsl"
+    },
+    {
+        "profile_name": "gs_5_1",
+        "source_pattern": "*_gs.hlsl"
+    },
+    {
+        "profile_name": "hs_5_1",
+        "source_pattern": "*_hs.hlsl"
+    },
+    {
+        "profile_name": "ps_5_1",
+        "source_pattern": "*_ps.hlsl"
+    },
+    {
+        "profile_name": "tx_1_0",
+        "source_pattern": "*_tx.hlsl"
+    },
+    {
+        "profile_name": "vs_5_1",
+        "source_pattern": "*_vs.hlsl"
+    }
+]

@@ -25,6 +25,12 @@ std::shared_ptr<Window> Window::Create(const wchar_t *windowTitle, uint32_t widt
     return window;
 }
 
+Window::EventHandlerId Window::RegisterDestroyEventHandler(Window::DestroyEventHandler &&handler)
+{
+    m_destroyEventHandlers.emplace_back(std::move(handler));
+    return EventHandlerId(m_destroyEventHandlers.size() - 1);
+}
+
 Window::EventHandlerId Window::RegisterKeyEventHandler(Window::KeyEventHandler &&handler)
 {
     m_keyEventHandlers.emplace_back(std::move(handler));
@@ -75,9 +81,14 @@ UINT Window::Present()
     return m_currentBackBufferIndex;
 }
 
-void Window::Close()
+void Window::Minimize()
 {
-    PostMessage(m_windowHandle, WM_CLOSE, 0, 0);
+    CloseWindow(m_windowHandle);
+}
+
+void Window::Destroy()
+{
+    DestroyWindow(m_windowHandle);
 }
 
 Window::Window(HWND windowHandle, uint32_t width, uint32_t height)
@@ -182,6 +193,7 @@ void Window::HandlePaintEvent()
 void Window::HandleDestroyEvent()
 {
     s_hwndWindowMap.erase(m_windowHandle);
+    ProcessDestroyEvent();
 }
 
 void Window::HandleKeyDownMessage(UINT message, WPARAM wParam, LPARAM lParam)
@@ -350,6 +362,14 @@ void Window::ProcessPaintEvent()
     }
 }
 
+void Window::ProcessDestroyEvent()
+{
+    for (const DestroyEventHandler &handler : m_destroyEventHandlers)
+    {
+        handler(m_windowHandle);
+    }
+}
+
 void Window::ProcessKeyEvent(const KeyEventArgs &event)
 {
     for (const KeyEventHandler &handler : m_keyEventHandlers)
@@ -420,9 +440,72 @@ void Window::ResizeSwapChainBuffers(uint32_t width, uint32_t height)
 
     // BOOL fullscreenState;
     // m_SwapChain->GetFullscreenState(&fullscreenState, nullptr);
-    // m_Fullscreen = fullscreenState == TRUE;
+    // m_fullscreen = fullscreenState == TRUE;
 
     m_currentBackBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     DXHelpers::UpdateRenderTargetViews(Engine::Get().GetDevice(), m_swapChain, m_RTVDescriptorHeap, m_backBuffers);
+}
+
+bool Window::IsFullScreen() const
+{
+    return m_fullscreen;
+}
+
+// Set the fullscreen state of the window.
+void Window::SetFullscreen(bool fullscreen)
+{
+    if (m_fullscreen != fullscreen)
+    {
+        m_fullscreen = fullscreen;
+
+        if (m_fullscreen) // Switching to fullscreen.
+        {
+            // Store the current window dimensions so they can be restored
+            // when switching out of fullscreen state.
+            ::GetWindowRect(m_windowHandle, &m_windowedRect);
+
+            // Set the window style to a borderless window so the client area fills
+            // the entire screen.
+            UINT windowStyle = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+
+            ::SetWindowLongW(m_windowHandle, GWL_STYLE, windowStyle);
+
+            // Query the name of the nearest display device for the window.
+            // This is required to set the fullscreen dimensions of the window
+            // when using a multi-monitor setup.
+            HMONITOR hMonitor = ::MonitorFromWindow(m_windowHandle, MONITOR_DEFAULTTONEAREST);
+            MONITORINFOEX monitorInfo = {};
+            monitorInfo.cbSize = sizeof(MONITORINFOEX);
+            ::GetMonitorInfo(hMonitor, &monitorInfo);
+
+            ::SetWindowPos(m_windowHandle, HWND_TOPMOST,
+                           monitorInfo.rcMonitor.left,
+                           monitorInfo.rcMonitor.top,
+                           monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+                           monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+                           SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+            ::ShowWindow(m_windowHandle, SW_MAXIMIZE);
+        }
+        else
+        {
+            // Restore all the window decorators.
+            ::SetWindowLong(m_windowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+            ::SetWindowPos(m_windowHandle, HWND_NOTOPMOST,
+                           m_windowedRect.left,
+                           m_windowedRect.top,
+                           m_windowedRect.right - m_windowedRect.left,
+                           m_windowedRect.bottom - m_windowedRect.top,
+                           SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+            ::ShowWindow(m_windowHandle, SW_NORMAL);
+        }
+    }
+}
+
+void Window::ToggleFullscreen()
+{
+    SetFullscreen(!m_fullscreen);
 }

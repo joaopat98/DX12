@@ -1,5 +1,13 @@
 #pragma once
 
+class IStartupEventHandler
+{
+public:
+    virtual ~IStartupEventHandler() = default;
+
+    virtual void Startup() = 0;
+};
+
 class IUpdateEventHandler
 {
 public:

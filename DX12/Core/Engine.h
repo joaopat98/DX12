@@ -42,12 +42,14 @@ public:
 
     std::shared_ptr<Window> CreateWindow(const wchar_t *windowTitle, uint32_t width, uint32_t height);
 
+    void RegisterStartupEventHandler(std::shared_ptr<IStartupEventHandler> startupEventHandler);
     void RegisterUpdateEventHandler(std::shared_ptr<IUpdateEventHandler> updateEventHandler);
     void RegisterRenderEventHandler(std::shared_ptr<IRenderEventHandler> renderEventHandler);
 
     void WaitForGPU();
 
     void Run();
+    void Exit();
 
 private:
     Engine(HINSTANCE applicationInstance, std::wstring cmdLine);
@@ -70,6 +72,7 @@ private:
     std::shared_ptr<CommandQueue> m_computeCommandQueue;
     std::shared_ptr<CommandQueue> m_copyCommandQueue;
 
+    std::vector<std::shared_ptr<IStartupEventHandler>> m_startupEventHandlers;
     std::vector<std::shared_ptr<IUpdateEventHandler>> m_updateEventHandlers;
     std::vector<std::shared_ptr<IRenderEventHandler>> m_renderEventHandlers;
 
