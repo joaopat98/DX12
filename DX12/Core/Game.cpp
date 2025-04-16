@@ -40,6 +40,13 @@ static WORD g_indexes[36] =
         1, 5, 6, 1, 6, 2,
         4, 0, 3, 4, 3, 7};
 
+constexpr size_t g_numRows = 300;
+constexpr size_t g_numColumns = 300;
+constexpr float g_xStride = 0.05f;
+constexpr float g_yStride = 0.05f;
+constexpr float g_cubeSize = 0.01f;
+constexpr size_t g_numInstances = g_numRows * g_numColumns;
+
 Game::Game()
     : m_scissorRect(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), m_FoV(45.0f)
 {
@@ -67,7 +74,7 @@ void Game::Startup()
     // Upload vertex buffer data.
     ComPtr<ID3D12Resource> intermediateVertexBuffer;
     DXHelpers::UpdateBufferResource(commandList.Get(),
-                                    m_vertexBuffer, intermediateVertexBuffer,
+                                    m_vertexBuffer, &intermediateVertexBuffer,
                                     _countof(g_vertices), sizeof(VertexPosColor), g_vertices);
 
     // Create the vertex buffer view.
@@ -78,13 +85,15 @@ void Game::Startup()
     // Upload index buffer data.
     ComPtr<ID3D12Resource> intermediateIndexBuffer;
     DXHelpers::UpdateBufferResource(commandList.Get(),
-                                    m_indexBuffer, intermediateIndexBuffer,
+                                    m_indexBuffer, &intermediateIndexBuffer,
                                     _countof(g_indexes), sizeof(WORD), g_indexes);
 
     // Create index buffer view.
     m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
     m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
     m_indexBufferView.SizeInBytes = sizeof(g_indexes);
+
+    CreateInstanceBuffer();
 
     // Create the descriptor heap for the depth-stencil view.
     D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
@@ -110,7 +119,10 @@ void Game::Startup()
     D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-    };
+        {"MODEL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        {"MODEL", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        {"MODEL", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        {"MODEL", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1}};
 
     // Create a root signature.
     D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
@@ -179,15 +191,11 @@ void Game::Startup()
 void Game::Update(double deltaTime)
 {
     char str[20];
-    sprintf_s(str, "FPS: %f", 1.0f / deltaTime);
+    sprintf_s(str, "FPS: %f\n", 1.0f / deltaTime);
     SetWindowText(m_window->GetWindowHandle(), str);
+    OutputDebugString(str);
 
     m_currentTime += deltaTime;
-
-    // Update the model matrix.
-    float angle = static_cast<float>(m_currentTime * 90.0);
-    const DirectX::XMVECTOR rotationAxis = DirectX::XMVectorSet(0, 1, 1, 0);
-    m_modelMatrix = DirectX::XMMatrixRotationAxis(rotationAxis, DirectX::XMConvertToRadians(angle));
 
     // Update the view matrix.
     const DirectX::XMVECTOR eyePosition = DirectX::XMVectorSet(0, 0, -10, 1);
@@ -198,6 +206,8 @@ void Game::Update(double deltaTime)
     // Update the projection matrix.
     float aspectRatio = static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight);
     m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(m_FoV), aspectRatio, 0.1f, 100.0f);
+
+    UpdateInstanceData();
 }
 
 void Game::Render()
@@ -220,11 +230,14 @@ void Game::Render()
         commandList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
     }
 
+    UpdateInstanceBuffer(commandList);
+
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+    commandList->IASetVertexBuffers(1, 1, &m_instanceBufferView);
     commandList->IASetIndexBuffer(&m_indexBufferView);
 
     commandList->RSSetViewports(1, &m_viewport);
@@ -232,12 +245,11 @@ void Game::Render()
 
     commandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
 
-    // Update the MVP matrix
-    DirectX::XMMATRIX mvpMatrix = DirectX::XMMatrixMultiply(m_modelMatrix, m_viewMatrix);
-    mvpMatrix = DirectX::XMMatrixMultiply(mvpMatrix, m_projectionMatrix);
-    commandList->SetGraphicsRoot32BitConstants(0, sizeof(DirectX::XMMATRIX) / 4, &mvpMatrix, 0);
+    // Update the VP matrix
+    DirectX::XMMATRIX vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projectionMatrix);
+    commandList->SetGraphicsRoot32BitConstants(0, sizeof(DirectX::XMMATRIX) / 4, &vpMatrix, 0);
 
-    commandList->DrawIndexedInstanced(_countof(g_indexes), 1, 0, 0, 0);
+    commandList->DrawIndexedInstanced(_countof(g_indexes), g_numInstances, 0, 0, 0);
 
     // Present
     {
@@ -335,4 +347,73 @@ void Game::ResizeDepthBuffer(uint32_t width, uint32_t height)
     dsv.Flags = D3D12_DSV_FLAG_NONE;
 
     device->CreateDepthStencilView(m_depthBuffer.Get(), &dsv, m_DSVHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void Game::CreateInstanceBuffer()
+{
+    auto device = Engine::Get().GetDevice();
+    LONG_PTR bufferSize = g_numInstances * sizeof(InstanceData);
+
+    CD3DX12_HEAP_PROPERTIES instanceHeapProps(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC instanceBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+    assert(SUCCEEDED(device->CreateCommittedResource(
+        &instanceHeapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &instanceBufferDesc,
+        D3D12_RESOURCE_STATE_COMMON,
+        nullptr,
+        IID_PPV_ARGS(&m_instanceBuffer))));
+
+    CD3DX12_HEAP_PROPERTIES uploadHeapProps(D3D12_HEAP_TYPE_UPLOAD);
+    CD3DX12_RESOURCE_DESC uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+    assert(SUCCEEDED(device->CreateCommittedResource(
+        &uploadHeapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &uploadBufferDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&m_instanceUploadBuffer))));
+
+    // Create instance buffer view.
+    m_instanceBufferView.BufferLocation = m_instanceBuffer->GetGPUVirtualAddress();
+    m_instanceBufferView.StrideInBytes = sizeof(InstanceData);
+    m_instanceBufferView.SizeInBytes = g_numInstances * sizeof(InstanceData);
+}
+
+void Game::UpdateInstanceData()
+{
+    if (m_instanceData.get() == nullptr)
+    {
+        m_instanceData = std::make_unique<InstanceData[]>(g_numInstances);
+    }
+    auto testData = std::make_unique<unsigned char[]>(16000);
+    for (int32_t x = 0; x < (int32_t)g_numRows; x++)
+    {
+        for (int32_t y = 0; y < (int32_t)g_numColumns; y++)
+        {
+            float angle = static_cast<float>((m_currentTime + (double)x) * 90.0);
+            const DirectX::XMVECTOR rotationAxis = DirectX::XMVectorSet(0, 1, 1, 0);
+            m_instanceData[x * g_numColumns + y].model = DirectX::XMMatrixScaling(g_cubeSize, g_cubeSize, g_cubeSize) * DirectX::XMMatrixRotationAxis(rotationAxis, DirectX::XMConvertToRadians(angle)) * DirectX::XMMatrixTranslation((float)(x - (int32_t)g_numRows / 2) * g_xStride, (float)(y - (int32_t)g_numColumns / 2) * g_yStride, 0);
+        }
+    }
+}
+
+void Game::UpdateInstanceBuffer(ComPtr<ID3D12GraphicsCommandList2> commandList)
+{
+    void *mappedData;
+    D3D12_RANGE readRange = {0, 0}; // We won't read from this resource on the CPU
+    m_instanceUploadBuffer->Map(0, &readRange, &mappedData);
+    memcpy(mappedData, m_instanceData.get(), g_numInstances * sizeof(InstanceData));
+    m_instanceUploadBuffer->Unmap(0, nullptr);
+
+    DXHelpers::TransitionResource(commandList, m_instanceBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+    commandList->CopyBufferRegion(m_instanceBuffer.Get(), 0, m_instanceUploadBuffer.Get(), 0, g_numInstances * sizeof(InstanceData));
+    DXHelpers::TransitionResource(commandList, m_instanceBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+}
+
+void Game::InitImGui()
+{
+    
 }

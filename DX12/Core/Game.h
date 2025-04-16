@@ -14,6 +14,7 @@ class Game
 {
 public:
     Game();
+    Game& operator= (const Game&) = delete;
 
     virtual void Startup() override;
     virtual void Update(double deltaTime) override;
@@ -28,6 +29,12 @@ protected:
     void ResizeDepthBuffer(uint32_t width, uint32_t height);
 
 private:
+    void CreateInstanceBuffer();
+    void UpdateInstanceData();
+    void UpdateInstanceBuffer(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList2> commandList);
+
+    void InitImGui();
+
     std::shared_ptr<Window> m_window;
 
     uint32_t m_windowWidth;
@@ -39,6 +46,9 @@ private:
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_indexBuffer;
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_instanceBuffer;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_instanceUploadBuffer;
+    D3D12_VERTEX_BUFFER_VIEW m_instanceBufferView;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthBuffer;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSVHeap;
@@ -51,9 +61,14 @@ private:
 
     float m_FoV;
 
-    DirectX::XMMATRIX m_modelMatrix;
     DirectX::XMMATRIX m_viewMatrix;
     DirectX::XMMATRIX m_projectionMatrix;
+
+    struct InstanceData
+    {
+        DirectX::XMMATRIX model;
+    };
+    std::unique_ptr<InstanceData[]> m_instanceData;
 
     double m_currentTime = 0;
 };

@@ -289,7 +289,7 @@ namespace DXHelpers
         commandList->ResourceBarrier(1, &barrier);
     }
 
-    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> &destinationResource, ComPtr<ID3D12Resource> &intermediateResource, size_t numElements, size_t elementSize, const void *bufferData, D3D12_RESOURCE_FLAGS flags)
+    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> &destinationResource, ComPtr<ID3D12Resource>* intermediateResource, size_t numElements, size_t elementSize, const void *bufferData, D3D12_RESOURCE_FLAGS flags)
     {
         auto device = Engine::Get().GetDevice();
         LONG_PTR bufferSize = numElements * elementSize;
@@ -309,6 +309,8 @@ namespace DXHelpers
         // Create an committed resource for the upload.
         if (bufferData)
         {
+            assert(intermediateResource);
+
             CD3DX12_HEAP_PROPERTIES uploadHeapProps(D3D12_HEAP_TYPE_UPLOAD);
             CD3DX12_RESOURCE_DESC uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
@@ -318,7 +320,7 @@ namespace DXHelpers
                 &uploadBufferDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&intermediateResource))));
+                IID_PPV_ARGS(&(*intermediateResource)))));
 
             D3D12_SUBRESOURCE_DATA subresourceData[1] = {
                 {.pData = bufferData,
@@ -326,7 +328,7 @@ namespace DXHelpers
                  .SlicePitch = bufferSize}};
 
             UpdateSubresources(commandList.Get(),
-                               destinationResource.Get(), intermediateResource.Get(),
+                               destinationResource.Get(), intermediateResource->Get(),
                                0, 0, 1, subresourceData);
         }
     }
