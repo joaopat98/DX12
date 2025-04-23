@@ -160,6 +160,9 @@ ForEach( .BuildConfig in .BuildConfigs )
                     + ' shell32.lib'
                     + ' dxgi.lib'
                     + ' dxguid.lib'
+                    + ' Imm32.Lib'
+                    + ' Gdi32.Lib'
+                    + ' dwmapi.lib'
 
     ObjectList('DX12Lib_$BuildConfigName$')
     {

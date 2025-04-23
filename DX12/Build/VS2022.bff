@@ -116,6 +116,9 @@ Compiler( 'Compiler-VS2022-x64' )
                                     // These warnings need further investigation
                                     + ' /wd5267' // definition of implicit copy constructor for '%s' is deprecated because it has a user-provided destructor
 
+                                    // Disable implicit conversion warnings
+                                    + ' /Wv:18'
+
                                     // These warnings are not useful
                                     + ' /wd4365'
                                     + ' /wd4100'
@@ -129,6 +132,7 @@ Compiler( 'Compiler-VS2022-x64' )
                                     + ' /wd4820' // '%s': '%u' bytes padding added after data member '%s'
                                     + ' /wd5045' // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
                                     + ' /wd5220' // '%s': a non-static data member with a volatile qualified type no longer implies that compiler generated copy/move constructors and copy/move assignment operators are not trivial
+                                    + ' /wd4191'
 
                                     // Include Paths
                                     + ' /I"./"'

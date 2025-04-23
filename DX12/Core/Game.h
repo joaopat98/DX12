@@ -3,7 +3,10 @@
 #include "Interfaces/EngineEventHandlers.h"
 #include "Engine.h"
 #include "Events.h"
+#include "ImGui/ImGuiRenderer.h"
 #include <DirectXMath.h>
+
+#include <optional>
 
 class Game
     : public std::enable_shared_from_this<Game>,
@@ -71,4 +74,6 @@ private:
     std::unique_ptr<InstanceData[]> m_instanceData;
 
     double m_currentTime = 0;
+
+    std::optional<ImGuiRenderer> m_imGuiRenderer;
 };

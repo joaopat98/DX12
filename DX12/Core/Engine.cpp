@@ -10,6 +10,16 @@
 #include "CommandQueue.h"
 #pragma warning(pop)
 #include "Window.h"
+
+#ifdef _DEBUG
+#define DX12_ENABLE_DEBUG_LAYER
+#endif
+
+#ifdef DX12_ENABLE_DEBUG_LAYER
+#include <dxgidebug.h>
+#pragma comment(lib, "dxguid.lib")
+#endif
+
 #include <iostream>
 
 Engine *Engine::s_singleton = nullptr;
@@ -112,6 +122,15 @@ void Engine::Run()
     }
 
     WaitForGPU();
+
+#ifdef DX12_ENABLE_DEBUG_LAYER
+    IDXGIDebug1 *pDebug = nullptr;
+    if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
+    {
+        pDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
+        pDebug->Release();
+    }
+#endif
 }
 
 void Engine::Exit()

@@ -63,6 +63,8 @@ Game::Game()
                                          { this->OnResizeEvent(event); });
     m_window->RegisterDestroyEventHandler([this](const HWND)
                                           { this->OnWindowDestroyed(); });
+
+    m_imGuiRenderer.emplace(m_window);
 }
 
 void Game::Startup()
@@ -251,11 +253,14 @@ void Game::Render()
 
     commandList->DrawIndexedInstanced(_countof(g_indexes), g_numInstances, 0, 0, 0);
 
+    m_imGuiRenderer->Render(commandList);
+
     // Present
     {
         DXHelpers::TransitionResource(commandList, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
         m_fenceValues[currentBackBufferIndex] = commandQueue->ExecuteCommandList(commandList);
+
 
         currentBackBufferIndex = m_window->Present();
 
@@ -415,5 +420,4 @@ void Game::UpdateInstanceBuffer(ComPtr<ID3D12GraphicsCommandList2> commandList)
 
 void Game::InitImGui()
 {
-    
 }
