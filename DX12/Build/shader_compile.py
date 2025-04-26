@@ -65,15 +65,16 @@ for profile in shader_profiles:
     for file in source_files:
         input_file = input_path.joinpath(file)
         input_file_path = str(input_file)
+        input_file_path_absolute = str(input_file.absolute())
         output_file = output_path.joinpath(file).with_suffix(".cso")
         
         with input_file.open() as input_contents:
             input_hash = hashlib.md5(input_contents.read().encode()).hexdigest()
 
-        cache_hash = in_cache.pop(input_file_path, None)
+        cache_hash = in_cache.pop(input_file_path_absolute, None)
         if cache_hash is not None:
             if input_hash == cache_hash and output_file.exists():
-                out_cache[input_file_path] = input_hash
+                out_cache[input_file_path_absolute] = input_hash
                 continue
 
         os.makedirs(output_file.parent, exist_ok=True)
@@ -86,7 +87,7 @@ for profile in shader_profiles:
             print(output.decode("utf-8"))
             print(err.decode("utf-8"))
         else:
-            out_cache[input_file_path] = input_hash
+            out_cache[input_file_path_absolute] = input_hash
 
 for path_str in in_cache:
     file_path = Path(path_str)

@@ -4,9 +4,12 @@
 #include "CommandQueue.h"
 #include <iostream>
 
+#include "d3dx12_core.h"
+#include "d3dx12_pipeline_state_stream.h"
+#include "d3dx12_root_signature.h"
+
 using namespace Microsoft::WRL;
 
-#include "directx/d3dx12.h"
 #include <d3dcompiler.h>
 
 #include <algorithm>
@@ -75,7 +78,7 @@ void Game::Startup()
 
     // Upload vertex buffer data.
     ComPtr<ID3D12Resource> intermediateVertexBuffer;
-    DXHelpers::UpdateBufferResource(commandList.Get(),
+    DXHelpers::UpdateBufferResource(device, commandList.Get(),
                                     m_vertexBuffer, &intermediateVertexBuffer,
                                     _countof(g_vertices), sizeof(VertexPosColor), g_vertices);
 
@@ -86,7 +89,7 @@ void Game::Startup()
 
     // Upload index buffer data.
     ComPtr<ID3D12Resource> intermediateIndexBuffer;
-    DXHelpers::UpdateBufferResource(commandList.Get(),
+    DXHelpers::UpdateBufferResource(device, commandList.Get(),
                                     m_indexBuffer, &intermediateIndexBuffer,
                                     _countof(g_indexes), sizeof(WORD), g_indexes);
 
@@ -192,8 +195,8 @@ void Game::Startup()
 
 void Game::Update(double deltaTime)
 {
-    char str[20];
-    sprintf_s(str, "FPS: %f\n", 1.0f / deltaTime);
+    wchar_t str[20];
+    swprintf_s(str, L"FPS: %f\n", 1.0f / deltaTime);
     SetWindowText(m_window->GetWindowHandle(), str);
     OutputDebugString(str);
 

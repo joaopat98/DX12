@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DX12", "DX12\DX12.vcxproj", "{9847BFC1-C657-4563-9996-60032ED772DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{14A45168-8399-4EB3-B551-FC12CF3EA5E3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectX", "Dependencies\DirectX\DirectX.vcxproj", "{AF223611-ED39-494D-98FA-AF1EB53B6AE5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "Dependencies\ImGui\ImGui.vcxproj", "{8AABE33B-C83D-49CB-B601-BC4084A2191B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9847BFC1-C657-4563-9996-60032ED772DA}.Debug|x64.ActiveCfg = Debug|x64
+		{9847BFC1-C657-4563-9996-60032ED772DA}.Debug|x64.Build.0 = Debug|x64
+		{9847BFC1-C657-4563-9996-60032ED772DA}.Release|x64.ActiveCfg = Release|x64
+		{9847BFC1-C657-4563-9996-60032ED772DA}.Release|x64.Build.0 = Release|x64
+		{AF223611-ED39-494D-98FA-AF1EB53B6AE5}.Debug|x64.ActiveCfg = Debug|x64
+		{AF223611-ED39-494D-98FA-AF1EB53B6AE5}.Debug|x64.Build.0 = Debug|x64
+		{AF223611-ED39-494D-98FA-AF1EB53B6AE5}.Release|x64.ActiveCfg = Release|x64
+		{AF223611-ED39-494D-98FA-AF1EB53B6AE5}.Release|x64.Build.0 = Release|x64
+		{8AABE33B-C83D-49CB-B601-BC4084A2191B}.Debug|x64.ActiveCfg = Debug|x64
+		{8AABE33B-C83D-49CB-B601-BC4084A2191B}.Debug|x64.Build.0 = Debug|x64
+		{8AABE33B-C83D-49CB-B601-BC4084A2191B}.Release|x64.ActiveCfg = Release|x64
+		{8AABE33B-C83D-49CB-B601-BC4084A2191B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AF223611-ED39-494D-98FA-AF1EB53B6AE5} = {14A45168-8399-4EB3-B551-FC12CF3EA5E3}
+		{8AABE33B-C83D-49CB-B601-BC4084A2191B} = {14A45168-8399-4EB3-B551-FC12CF3EA5E3}
+	EndGlobalSection
+EndGlobal

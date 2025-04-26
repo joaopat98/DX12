@@ -1,19 +1,13 @@
 #include "DXHelpers.h"
 
 #include "WinHelpers.h"
-#include "Engine.h"
 #include <cassert>
 
-#pragma warning(push)
-#pragma warning(disable : 4365)
-#pragma warning(disable : 4626)
-// DirectX 12 specific headers.
-// #include "directx/d3d12.h"
-// #include <d3dcompiler.h>
-// #include <DirectXMath.h>
+#include "d3dx12_barriers.h"
+#include "d3dx12_core.h"
+#include "d3dx12_resource_helpers.h"
+#include "d3dx12_root_signature.h"
 
-// D3D12 extension library.
-#pragma warning(pop)
 
 namespace DXHelpers
 {
@@ -289,9 +283,8 @@ namespace DXHelpers
         commandList->ResourceBarrier(1, &barrier);
     }
 
-    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> &destinationResource, ComPtr<ID3D12Resource>* intermediateResource, size_t numElements, size_t elementSize, const void *bufferData, D3D12_RESOURCE_FLAGS flags)
+    void UpdateBufferResource(ComPtr<ID3D12Device2> device, ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> &destinationResource, ComPtr<ID3D12Resource>* intermediateResource, size_t numElements, size_t elementSize, const void *bufferData, D3D12_RESOURCE_FLAGS flags)
     {
-        auto device = Engine::Get().GetDevice();
         LONG_PTR bufferSize = numElements * elementSize;
 
         CD3DX12_HEAP_PROPERTIES resourceHeapProps(D3D12_HEAP_TYPE_DEFAULT);

@@ -1,6 +1,9 @@
 #include "Window.h"
 
 #include "WinHelpers.h"
+
+#include "d3dx12_root_signature.h"
+
 #include "DXHelpers.h"
 #include "Engine.h"
 #include "CommandQueue.h"

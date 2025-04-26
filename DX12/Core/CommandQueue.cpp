@@ -78,7 +78,7 @@ uint64_t CommandQueue::ExecuteCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsC
 {
     commandList->Close();
 
-    ID3D12CommandAllocator *commandAllocator;
+    ID3D12CommandAllocator *commandAllocator = nullptr;
     UINT dataSize = sizeof(commandAllocator);
     assert(SUCCEEDED(commandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &dataSize, &commandAllocator)));
 

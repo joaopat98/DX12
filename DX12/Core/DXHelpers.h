@@ -2,13 +2,10 @@
 
 #include "MinWindows.h"
 
-#pragma warning(push)
-#pragma warning(disable : 4365)
-#pragma warning(disable : 4626)
-// DirectX 12 specific headers.
+#include <cstdint>
+#include <d3d12.h>
 #include <dxgi1_6.h>
-#include "directx/d3dx12.h"
-#pragma warning(pop)
+#include <vector>
 
 #include <wrl.h>
 
@@ -42,5 +39,5 @@ namespace DXHelpers
 
     void TransitionResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
 
-    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource>& destinationResource, ComPtr<ID3D12Resource>* intermediateResource, size_t numElements, size_t elementSize, const void* bufferData, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+    void UpdateBufferResource(ComPtr<ID3D12Device2> device, ComPtr<ID3D12GraphicsCommandList2> commandList, ComPtr<ID3D12Resource>& destinationResource, ComPtr<ID3D12Resource>* intermediateResource, size_t numElements, size_t elementSize, const void* bufferData, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 }

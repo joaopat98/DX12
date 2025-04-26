@@ -1,8 +1,6 @@
 #include "Core/Engine.h"
 #include "Core/Game.h"
 
-#pragma warning(push)
-#pragma warning(disable : 4100)
 int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
     Engine::Init(hInstance, lpCmdLine);
@@ -14,4 +12,3 @@ int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
     
     Engine::Get().Run();
 }
-#pragma warning(pop)

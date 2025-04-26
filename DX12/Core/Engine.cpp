@@ -2,13 +2,7 @@
 
 #include <cassert>
 
-#pragma warning(push)
-#pragma warning(disable : 4365)
-#pragma warning(disable : 4626)
-// #pragma warning(disable : 2220)
-#include "directx/d3dx12.h"
 #include "CommandQueue.h"
-#pragma warning(pop)
 #include "Window.h"
 
 #ifdef _DEBUG
@@ -22,12 +16,14 @@
 
 #include <iostream>
 
+#include "DXHelpers.h"
+
 Engine *Engine::s_singleton = nullptr;
 
 void Engine::Init(HINSTANCE applicationInstance, std::wstring cmdLine)
 {
     assert(s_singleton == nullptr);
-    static Engine staticInstance = Engine(applicationInstance, cmdLine);
+    static Engine staticInstance(applicationInstance, cmdLine);
     s_singleton = &staticInstance;
 }
 

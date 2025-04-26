@@ -1,6 +1,14 @@
-#include "DX12/Core/Engine.h"
+#pragma once
 
-#include <vector>
+#include "Core/MinWindows.h"
+
+#include <d3d12.h>
+
+#include <memory>
+
+#include <wrl.h>
+
+class Window;
 
 class ImGuiRenderer
 {

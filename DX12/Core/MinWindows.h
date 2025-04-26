@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(_WINDOWS_) && !defined(IB_MIN_WINDOWS)
-#pragma message ( "Warning: You have included windows.h before MinWindows.h." )
+static_assert(false);
 #pragma message ( "Please use MinWindows.h instead!" )
 #endif
 

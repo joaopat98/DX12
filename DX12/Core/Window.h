@@ -1,14 +1,16 @@
 #pragma once
 
 #include "MinWindows.h"
+
+#include <d3d12.h>
+#include <dxgi1_5.h>
+
 #include <wrl.h>
 
-#include "DXHelpers.h"
-
 #include <vector>
-#include <unordered_map>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 #include "Events.h"
 

@@ -1,13 +1,14 @@
 #include "ImGuiRenderer.h"
 
-#include "DX12/Core/CommandQueue.h"
-#include "DX12/Core/Window.h"
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_win32.h"
 
-#include "DX12/Dependencies/ImGui/imgui.h"
-#include "DX12/Dependencies/ImGui/imgui_impl_win32.h"
-#include "DX12/Dependencies/ImGui/imgui_impl_dx12.h"
+#include "Core/Engine.h"
 
 #include <cassert>
+
+#include "Core/CommandQueue.h"
+#include "Core/Window.h"
 
 using namespace Microsoft::WRL;
 

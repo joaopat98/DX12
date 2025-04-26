@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup Label="ProjectConfigurations">
+        <ProjectConfiguration Include="Debug|x64">
+            <Configuration>Debug</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+        <ProjectConfiguration Include="Release|x64">
+            <Configuration>Release</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+    </ItemGroup>
+    <PropertyGroup Label="Globals">
+        <VCProjectVersion>15.0</VCProjectVersion>
+        <ProjectGuid>{AF223611-ED39-494D-98FA-AF1EB53B6AE5}</ProjectGuid>
+        <Keyword>Win32Proj</Keyword>
+        <RootNamespace>DirectX</RootNamespace>
+        <ConfigurationType>Utility</ConfigurationType>
+        <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+        <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+    <PropertyGroup>
+        <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+        <ConfigurationType>Utility</ConfigurationType>
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+        <ConfigurationType>Utility</ConfigurationType>
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+    <ItemGroup>
+        <!-- Header files -->
+        <ClInclude Include="d3d12.h"/>
+        <ClInclude Include="d3d12compatibility.h"/>
+        <ClInclude Include="d3d12sdklayers.h"/>
+        <ClInclude Include="d3d12shader.h"/>
+        <ClInclude Include="D3D12TokenizedProgramFormat.hpp"/>
+        <ClInclude Include="d3d12video.h"/>
+        <ClInclude Include="d3dcommon.h"/>
+        <ClInclude Include="d3dx12.h"/>
+        <ClInclude Include="d3dx12_barriers.h"/>
+        <ClInclude Include="d3dx12_check_feature_support.h"/>
+        <ClInclude Include="d3dx12_core.h"/>
+        <ClInclude Include="d3dx12_default.h"/>
+        <ClInclude Include="d3dx12_pipeline_state_stream.h"/>
+        <ClInclude Include="d3dx12_property_format_table.h"/>
+        <ClInclude Include="d3dx12_render_pass.h"/>
+        <ClInclude Include="d3dx12_resource_helpers.h"/>
+        <ClInclude Include="d3dx12_root_signature.h"/>
+        <ClInclude Include="d3dx12_state_object.h"/>
+        <ClInclude Include="DirectML.h"/>
+        <ClInclude Include="dxcore.h"/>
+        <ClInclude Include="dxcore_interface.h"/>
+        <ClInclude Include="dxgicommon.h"/>
+        <ClInclude Include="dxgiformat.h"/>
+    </ItemGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+</Project>
